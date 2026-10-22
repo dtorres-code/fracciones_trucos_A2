@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TuProfe20 Lab: Fracciones a Decimales</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka y Nunito para estilo escolar vibrante -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js para efectos de sonido interactivos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Canvas Confetti para celebraciones -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --font-title: 'Fredoka', sans-serif;
+            --font-body: 'Nunito', sans-serif;
+        }
+        body {
+            font-family: var(--font-body);
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+            min-height: 100vh;
+        }
+        h1, h2, h3, .font-display {
+            font-family: var(--font-title);
+        }
+
+        /* Animaciones flotantes de fondo */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(250, 204, 21, 0.5), 0 8px 0 #ca8a04; }
+            50% { box-shadow: 0 0 35px rgba(250, 204, 21, 0.9), 0 8px 0 #ca8a04; }
+        }
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            80% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-float {
+            animation: floatSlow 5s ease-in-out infinite;
+        }
+        .animate-pop {
+            animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .shake {
+            animation: shakeError 0.4s ease-in-out;
+        }
+
+        /* Botones estilo Arcade 3D para Pizarra Digital */
+        .btn-3d-yellow {
+            background: linear-gradient(to bottom, #fde047, #eab308);
+            box-shadow: 0 8px 0 #a16207, 0 15px 20px rgba(0,0,0,0.3);
+            transition: all 0.1s;
+        }
+        .btn-3d-yellow:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #a16207, 0 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .btn-3d-green {
+            background: linear-gradient(to bottom, #4ade80, #16a34a);
+            box-shadow: 0 6px 0 #14532d, 0 10px 15px rgba(0,0,0,0.25);
+            transition: all 0.1s;
+        }
+        .btn-3d-green:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #14532d;
+        }
+
+        .btn-3d-blue {
+            background: linear-gradient(to bottom, #38bdf8, #0284c7);
+            box-shadow: 0 6px 0 #0c4a6e, 0 10px 15px rgba(0,0,0,0.25);
+            transition: all 0.1s;
+        }
+        .btn-3d-blue:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #0c4a6e;
+        }
+
+        .btn-3d-purple {
+            background: linear-gradient(to bottom, #c084fc, #9333ea);
+            box-shadow: 0 5px 0 #581c87, 0 8px 12px rgba(0,0,0,0.2);
+            transition: all 0.1s;
+        }
+        .btn-3d-purple:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #581c87;
+        }
+
+        /* Estilo de Fracción Vertical */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            line-height: 1.1;
+            font-weight: 800;
+        }
+        .fraction .num {
+            border-bottom: 3px solid currentColor;
+            padding: 0 6px;
+        }
+        .fraction .den {
+            padding: 0 6px;
+        }
+
+        /* Barra deslizante personalizada para pizarra digital */
+        input[type=range].lab-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range].lab-slider::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 24px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 12px;
+            border: 3px solid #94a3b8;
+        }
+        input[type=range].lab-slider::-webkit-slider-thumb {
+            height: 48px;
+            width: 48px;
+            border-radius: 50%;
+            background: #ec4899;
+            border: 5px solid #ffffff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -15px;
+            transition: transform 0.15s;
+        }
+        input[type=range].lab-slider::-webkit-slider-thumb:hover,
+        input[type=range].lab-slider::-webkit-slider-thumb:active {
+            transform: scale(1.18);
+            background: #db2777;
+        }
+
+        /* Cuadrícula de 100 para Nivel 3 */
+        .grid-100 {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 3px;
+        }
+
+        /* Pizarra de dibujo */
+        #scratchpad-canvas {
+            touch-action: none;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col justify-between relative min-h-screen">
+
+    <!-- Elementos decorativos flotantes del fondo -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-20">
+        <div class="absolute top-10 left-10 text-7xl font-display text-white animate-float">0.5</div>
+        <div class="absolute bottom-16 left-20 text-8xl font-display text-yellow-300 animate-float" style="animation-delay: 1s;">¾</div>
+        <div class="absolute top-24 right-16 text-7xl font-display text-cyan-300 animate-float" style="animation-delay: 2s;">0.25</div>
+        <div class="absolute bottom-12 right-24 text-8xl font-display text-pink-300 animate-float" style="animation-delay: 1.5s;">½</div>
+        <div class="absolute top-1/2 left-8 text-6xl font-display text-green-300 animate-float" style="animation-delay: 0.5s;">1.25</div>
+    </div>
+
+    <!-- ==========================================
+         PANTALLA 1: PORTADA INMERSIVA (COVER SCREEN)
+         ========================================== -->
+    <section id="cover-screen" class="relative z-10 flex-1 flex flex-col items-center justify-center p-4 sm:p-8 text-center">
+        <div class="max-w-4xl w-full bg-white/15 backdrop-blur-xl border-4 border-white/40 rounded-[2.5rem] p-6 sm:p-12 shadow-2xl animate-pop">
+            
+            <!-- Insignia Superior -->
+            <div class="inline-flex items-center gap-2 bg-yellow-400 text-indigo-950 font-extrabold px-5 py-2 rounded-full text-sm sm:text-lg shadow-lg mb-6 uppercase tracking-wider">
+                <i class="ph-fill ph-sparkle text-xl"></i> Pizarra Digital Interactiva <i class="ph-fill ph-sparkle text-xl"></i>
+            </div>
+
+            <!-- Logo y Título Principal -->
+            <div class="flex flex-col items-center justify-center mb-6">
+                <div class="w-28 h-28 sm:w-36 sm:h-36 bg-gradient-to-tr from-cyan-400 via-blue-500 to-indigo-600 rounded-3xl p-4 shadow-2xl border-4 border-white flex items-center justify-center mb-4 transform -rotate-3 hover:rotate-3 transition-transform duration-300">
+                    <!-- SVG Matraz de Laboratorio con Fracciones -->
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
+                        <path d="M35 15 H65 M42 15 V38 L18 78 C14 85 19 92 27 92 H73 C81 92 86 85 82 78 L58 38 V15" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M23 76 L33 58 H67 L77 76 C80 81 76 87 70 87 H30 C24 87 20 81 23 76 Z" fill="#fde047"/>
+                        <circle cx="42" cy="72" r="4" fill="#ea580c"/>
+                        <circle cx="58" cy="76" r="5" fill="#ea580c"/>
+                        <circle cx="50" cy="48" r="3.5" fill="#38bdf8"/>
+                        <text x="50" y="79" font-family="Fredoka" font-size="14" font-weight="bold" fill="#7c2d12" text-anchor="middle">0.75</text>
+                    </svg>
+                </div>
+
+                <h1 class="text-5xl sm:text-7xl font-extrabold text-white tracking-tight drop-shadow-[0_5px_5px_rgba(0,0,0,0.4)]">
+                    TuProfe20 <span class="text-yellow-300">Lab</span>
+                </h1>
+                <div class="mt-3 bg-gradient-to-r from-pink-500 via-rose-500 to-orange-500 text-white font-display text-2xl sm:text-4xl px-8 py-2 rounded-2xl shadow-lg border-2 border-white/60 transform rotate-1">
+                    Fracciones a Decimales
+                </div>
+            </div>
+
+            <p class="text-white/95 text-lg sm:text-2xl max-w-2xl mx-auto mb-8 font-semibold leading-relaxed">
+                ¡Bienvenidos científicos matemáticos! Explora, toca, mueve figuras y domina los <span class="text-yellow-300 underline decoration-wavy">16 retos interactivos</span> divididos en 2 misiones de pizarra digital.
+            </p>
+
+            <!-- Tarjetas de Características -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto mb-8 text-white">
+                <div class="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/30 flex flex-col items-center">
+                    <i class="ph-fill ph-hand-tap text-3xl text-yellow-300 mb-1"></i>
+                    <span class="font-bold text-sm sm:text-base">Toca y Pinta</span>
+                </div>
+                <div class="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/30 flex flex-col items-center">
+                    <i class="ph-fill ph-magic-wand text-3xl text-orange-300 mb-1"></i>
+                    <span class="font-bold text-sm sm:text-base">Trucos ×2, ×25, ×125</span>
+                </div>
+                <div class="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/30 flex flex-col items-center">
+                    <i class="ph-fill ph-git-commit text-3xl text-green-300 mb-1"></i>
+                    <span class="font-bold text-sm sm:text-base">Relaciona y Mueve</span>
+                </div>
+                <div class="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/30 flex flex-col items-center">
+                    <i class="ph-fill ph-pencil-line text-3xl text-pink-300 mb-1"></i>
+                    <span class="font-bold text-sm sm:text-base">Pizarra Libre</span>
+                </div>
+            </div>
+
+            <!-- Botones de Inicio para ambas Misiones -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button onclick="startLab('visual')" class="btn-3d-yellow text-indigo-950 font-display text-xl sm:text-2xl font-bold px-7 py-4 rounded-3xl inline-flex items-center gap-3 cursor-pointer">
+                    <i class="ph-fill ph-shapes text-3xl"></i>
+                    I. Lab Visual (8 Niveles)
+                </button>
+                <button onclick="startLab('tricks')" class="btn-3d-green text-white font-display text-xl sm:text-2xl font-bold px-7 py-4 rounded-3xl inline-flex items-center gap-3 cursor-pointer">
+                    <i class="ph-fill ph-lightning text-3xl"></i>
+                    II. Trucos de Pizarra (8 Niveles)
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         PANTALLA 2: INTERFAZ DEL LABORATORIO (JUEGO)
+         ========================================== -->
+    <section id="lab-screen" class="hidden relative z-10 flex-1 flex flex-col justify-between p-2 sm:p-5 max-w-7xl w-full mx-auto">
+        
+        <!-- Barra Superior de Navegación y Niveles -->
+        <header class="bg-white/95 backdrop-blur-md rounded-3xl p-3 sm:p-4 shadow-xl border-4 border-indigo-200 mb-3 flex flex-col gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <!-- Marca Mini -->
+                <div class="flex items-center gap-3">
+                    <button onclick="showCover()" title="Volver a Portada" class="bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 rounded-2xl shadow transition flex items-center justify-center">
+                        <i class="ph-bold ph-house text-2xl"></i>
+                    </button>
+                    <div>
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-pink-600 block">TuProfe20 Lab • 5° Grado</span>
+                        <h2 class="font-display text-lg sm:text-xl font-bold text-indigo-950 leading-none">Fracciones a Decimales</h2>
+                    </div>
+                </div>
+
+                <!-- Selector de Modo: Simulación Inicial vs Trucos de Pizarra -->
+                <div class="flex items-center bg-slate-100 p-1.5 rounded-2xl border-2 border-slate-200 gap-1.5">
+                    <button id="tab-visual" onclick="switchMode('visual')" class="px-3.5 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="ph-fill ph-shapes text-lg"></i> I. Simulación Visual (8)
+                    </button>
+                    <button id="tab-tricks" onclick="switchMode('tricks')" class="px-3.5 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="ph-fill ph-lightning text-lg"></i> II. Trucos de Pizarra (8)
+                    </button>
+                </div>
+
+                <!-- Herramientas de Pizarra y Puntos -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="bg-amber-100 border-2 border-amber-400 px-3.5 py-1.5 rounded-2xl flex items-center gap-1.5 font-display text-amber-900 font-bold text-lg">
+                        <i class="ph-fill ph-star text-amber-500 text-2xl"></i>
+                        <span id="score-display">0</span>
+                    </div>
+
+                    <button onclick="toggleScratchpad()" id="btn-scratchpad" class="btn-3d-purple text-white font-bold px-3.5 py-2 rounded-2xl flex items-center gap-2 text-sm sm:text-base cursor-pointer">
+                        <i class="ph-bold ph-chalkboard-simple text-xl"></i>
+                        <span class="hidden md:inline">Pizarra Libre</span>
+                    </button>
+
+                    <button onclick="toggleSound()" id="btn-sound" class="bg-slate-200 hover:bg-slate-300 text-slate-700 p-2.5 rounded-2xl transition cursor-pointer" title="Activar/Desactivar Sonido">
+                        <i id="sound-icon" class="ph-fill ph-speaker-high text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Selector de los 8 Niveles del Modo Actual -->
+            <div class="flex items-center justify-center border-t border-slate-100 pt-2">
+                <div id="level-indicators" class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
+                    <!-- Generado dinámicamente con JS -->
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenedor Principal del Ejercicio -->
+        <main class="flex-1 bg-white/95 backdrop-blur-md rounded-[2rem] shadow-2xl border-4 border-white p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden min-h-[480px]">
+            
+            <!-- Encabezado del Nivel Actual -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b-2 border-slate-100">
+                <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <span id="level-badge" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-display font-bold px-4 py-1.5 rounded-2xl text-sm sm:text-base shadow">
+                        Nivel 1 de 8
+                    </span>
+                    <span id="difficulty-badge" class="bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-xl text-xs sm:text-sm">
+                        ★ Fácil
+                    </span>
+                    <span id="mode-pill" class="bg-amber-100 text-amber-900 border border-amber-300 font-extrabold px-3 py-1 rounded-xl text-xs sm:text-sm flex items-center gap-1">
+                        <i class="ph-fill ph-magic-wand text-amber-600"></i> Exploración Interactiva
+                    </span>
+                </div>
+                <button onclick="showHint()" class="self-start sm:self-auto text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3.5 py-1.5 rounded-xl font-bold text-sm flex items-center gap-1.5 transition cursor-pointer">
+                    <i class="ph-fill ph-lightbulb text-amber-500 text-lg"></i> ¿Necesitas una pista?
+                </button>
+            </div>
+
+            <!-- Tarjeta Recordatoria de los Trucos de Clase (Visible en Modo Trucos) -->
+            <div id="tricks-cheat-sheet" class="hidden mt-2 bg-gradient-to-r from-indigo-950 via-indigo-900 to-purple-950 text-white px-4 py-2 rounded-2xl flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs sm:text-sm font-bold shadow-md">
+                <span class="text-yellow-300 uppercase tracking-wider flex items-center gap-1">
+                    <i class="ph-fill ph-lightning"></i> II. Trucos de Fracciones a Decimales:
+                </span>
+                <span class="bg-white/15 px-2.5 py-0.5 rounded-lg">5 <span class="text-orange-400">× 2</span> = 10</span>
+                <span class="bg-white/15 px-2.5 py-0.5 rounded-lg">2 <span class="text-orange-400">× 5</span> = 10</span>
+                <span class="bg-white/15 px-2.5 py-0.5 rounded-lg">4 <span class="text-orange-400">× 25</span> = 100</span>
+                <span class="bg-white/15 px-2.5 py-0.5 rounded-lg">20 <span class="text-orange-400">× 5</span> = 100</span>
+                <span class="bg-white/15 px-2.5 py-0.5 rounded-lg">25 <span class="text-orange-400">× 4</span> = 100</span>
+                <span class="bg-white/15 px-2.5 py-0.5 rounded-lg">8 <span class="text-orange-400">× 125</span> = 1000</span>
+            </div>
+
+            <!-- Título e Instrucción del Reto -->
+            <div class="my-3 text-center">
+                <h3 id="exercise-title" class="font-display text-2xl sm:text-3xl font-bold text-indigo-950 mb-1">
+                    Cargando reto...
+                </h3>
+                <p id="exercise-instruction" class="text-slate-600 font-bold text-base sm:text-lg max-w-3xl mx-auto">
+                    Instrucciones del ejercicio
+                </p>
+            </div>
+
+            <!-- ESCENARIO INTERACTIVO DINÁMICO -->
+            <div id="interactive-stage" class="flex-1 flex flex-col items-center justify-center my-2 w-full">
+                <!-- Se inyecta según el nivel 1..8 -->
+            </div>
+
+            <!-- Mensaje de Retroalimentación / Pista -->
+            <div id="feedback-banner" class="hidden my-2 p-3 sm:p-4 rounded-2xl font-bold text-center text-base sm:text-lg transition-all"></div>
+
+            <!-- Barra Inferior de Controles del Ejercicio -->
+            <div class="pt-4 border-t-2 border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                <button onclick="resetCurrentLevel()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-3 rounded-2xl flex items-center gap-2 transition text-base sm:text-lg">
+                    <i class="ph-bold ph-arrow-counter-clockwise text-xl"></i> Reiniciar Reto
+                </button>
+
+                <div class="flex items-center gap-3">
+                    <button id="btn-verify" onclick="verifyCurrentLevel()" class="btn-3d-green text-white font-display font-bold text-xl sm:text-2xl px-8 py-3.5 rounded-2xl flex items-center gap-2 cursor-pointer">
+                        <i class="ph-bold ph-check-fat text-2xl"></i> ¡COMPROBAR!
+                    </button>
+
+                    <button id="btn-next" onclick="nextLevel()" class="hidden btn-3d-blue text-white font-display font-bold text-xl sm:text-2xl px-8 py-3.5 rounded-2xl flex items-center gap-2 cursor-pointer">
+                        SIGUIENTE NIVEL <i class="ph-bold ph-arrow-right text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CAPA SUPERPUESTA: PIZARRA DE CÁLCULO TRANSPARENTE PARA EL ALUMNO/DOCENTE -->
+            <div id="scratchpad-container" class="hidden absolute inset-0 z-30 pointer-events-auto flex flex-col">
+                <div class="bg-indigo-950/90 text-white px-4 py-2.5 flex items-center justify-between shadow-lg">
+                    <div class="flex items-center gap-2 font-display text-sm sm:text-base">
+                        <i class="ph-fill ph-pencil-circle text-2xl text-yellow-400"></i>
+                        <span>Modo Pizarra Activo (Haz tus divisiones o apuntes aquí)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="setPenColor('#ef4444')" class="w-7 h-7 rounded-full bg-red-500 border-2 border-white"></button>
+                        <button onclick="setPenColor('#2563eb')" class="w-7 h-7 rounded-full bg-blue-600 border-2 border-white"></button>
+                        <button onclick="setPenColor('#16a34a')" class="w-7 h-7 rounded-full bg-green-600 border-2 border-white"></button>
+                        <button onclick="clearScratchpad()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1">
+                            <i class="ph-bold ph-eraser"></i> Borrar
+                        </button>
+                        <button onclick="toggleScratchpad()" class="bg-rose-500 hover:bg-rose-600 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1">
+                            <i class="ph-bold ph-x"></i> Cerrar Pizarra
+                        </button>
+                    </div>
+                </div>
+                <canvas id="scratchpad-canvas" class="flex-1 w-full h-full bg-amber-50/35 backdrop-blur-[1px]"></canvas>
+            </div>
+        </main>
+    </section>
+
+    <!-- ==========================================
+         MODAL DE VICTORIA FINAL
+         ========================================== -->
+    <div id="victory-modal" class="hidden fixed inset-0 z-50 bg-indigo-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] max-w-xl w-full p-8 text-center shadow-2xl border-8 border-yellow-400 animate-pop">
+            <div class="w-24 h-24 mx-auto bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                <i class="ph-fill ph-trophy text-6xl"></i>
+            </div>
+            <h2 class="font-display text-4xl font-bold text-indigo-950 mb-2">¡Misión Completada!</h2>
+            <p id="victory-text" class="text-slate-600 text-lg font-bold mb-6">
+                Has superado con éxito los 8 niveles de esta misión en <span class="text-pink-600">TuProfe20 Lab</span>.
+            </p>
+            <div class="bg-indigo-50 rounded-2xl p-4 mb-6 inline-block px-10 border-2 border-indigo-200">
+                <span class="text-sm uppercase font-extrabold text-indigo-500 block">Puntaje Acumulado</span>
+                <span id="final-score" class="font-display text-5xl font-extrabold text-indigo-900">800</span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-3">
+                <button onclick="switchOtherModeFromModal()" class="btn-3d-green text-white font-display text-xl font-bold px-6 py-3.5 rounded-2xl inline-flex items-center gap-2 cursor-pointer">
+                    <i class="ph-bold ph-swap"></i> Ir a la otra Misión (8 niveles)
+                </button>
+                <button onclick="restartWholeLab()" class="btn-3d-yellow text-indigo-950 font-display text-xl font-bold px-6 py-3.5 rounded-2xl inline-flex items-center gap-2 cursor-pointer">
+                    <i class="ph-bold ph-arrows-clockwise"></i> Reiniciar Todo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ==============================================================
+           SISTEMA DE SONIDO SINTETIZADO (TONE.JS)
+           ============================================================== */
+        let soundEnabled = true;
+        let synth = null;
+
+        function initAudio() {
+            if (!synth && typeof Tone !== 'undefined') {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -6;
+            }
+        }
+
+        function playTone(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (Tone.context.state !== 'running') {
+                    Tone.context.resume();
+                }
+                const now = Tone.now();
+                if (type === 'pop') {
+                    synth.triggerAttackRelease("C5", "16n", now);
+                } else if (type === 'match') {
+                    synth.triggerAttackRelease(["E5", "G5"], "16n", now);
+                } else if (type === 'success') {
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.1);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.2);
+                    synth.triggerAttackRelease("C6", "8n", now + 0.3);
+                } else if (type === 'error') {
+                    synth.triggerAttackRelease(["Eb3", "A2"], "8n", now);
+                }
+            } catch (e) {
+                // Ignorar si el navegador bloquea el audio antes de interacción
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            icon.className = soundEnabled ? 'ph-fill ph-speaker-high text-2xl' : 'ph-fill ph-speaker-slash text-2xl text-rose-500';
+        }
+
+        /* ==============================================================
+           MÓDULO 1: SIMULACIÓN VISUAL INICIAL (8 NIVELES)
+           ============================================================== */
+        const VISUAL_LEVELS = [
+            {
+                id: 1,
+                difficulty: "★ Nivel 1 • Muy Fácil",
+                diffColor: "bg-emerald-100 text-emerald-800",
+                title: "Explorando los Décimos (3/10)",
+                instruction: "Toca las barras del tubo de ensayo para colorear exactamente 3/10 y descubrir su valor decimal.",
+                hint: "Cada barra equivale a 0,1. Si pintas 3 barras de 10, obtendrás 0,3.",
+                type: "tenths-bar",
+                targetCount: 3,
+                totalBars: 10
+            },
+            {
+                id: 2,
+                difficulty: "★ Nivel 2 • Fácil",
+                diffColor: "bg-emerald-100 text-emerald-800",
+                title: "La Pizza Científica en Cuartos (3/4)",
+                instruction: "Toca las porciones del círculo para seleccionar 3/4 de la unidad (0,75).",
+                hint: "Cada cuarto de pizza vale 0,25. Selecciona 3 porciones para sumar 0,75.",
+                type: "quarters-pie",
+                targetSlices: 3
+            },
+            {
+                id: 3,
+                difficulty: "★★ Nivel 3 • Inicial-Medio",
+                diffColor: "bg-cyan-100 text-cyan-800",
+                title: "El Tablero de los 100 Centésimos (45/100)",
+                instruction: "Usa los botones rápidos o toca las casillas hasta iluminar 45 centésimos (0,45).",
+                hint: "Puedes pulsar 4 veces '+10' (4 décimos = 0,40) y luego 5 casillas sueltas para llegar a 45/100 = 0,45.",
+                type: "hundredths-grid",
+                targetCells: 45
+            },
+            {
+                id: 4,
+                difficulty: "★★ Nivel 4 • Medio",
+                diffColor: "bg-sky-100 text-sky-800",
+                title: "Cohete en la Recta Numérica (4/5)",
+                instruction: "Desliza el cohete sobre la recta numérica hasta aterrizar en el decimal equivalente a 4/5.",
+                hint: "Divide 1 unidad en 5 saltos de 0,2. El cuarto salto (4/5) está en 0,8.",
+                type: "number-line",
+                num: 4,
+                den: 5,
+                targetVal: 0.8
+            },
+            {
+                id: 5,
+                difficulty: "★★★ Nivel 5 • Intermedio",
+                diffColor: "bg-amber-100 text-amber-800",
+                title: "Conexión de Parejas Equivalentes",
+                instruction: "Toca una fracción de la columna izquierda y luego su número decimal equivalente en la derecha.",
+                hint: "1/2 es la mitad (0,5) | 1/4 es un cuarto (0,25) | 1/5 es 0,2 | 3/10 es 0,3.",
+                type: "matching",
+                pairs: [
+                    { id: 'v1', num: 1, den: 2, dec: "0,5" },
+                    { id: 'v2', num: 1, den: 4, dec: "0,25" },
+                    { id: 'v3', num: 1, den: 5, dec: "0,2" },
+                    { id: 'v4', num: 3, den: 10, dec: "0,3" }
+                ]
+            },
+            {
+                id: 6,
+                difficulty: "★★★ Nivel 6 • Intermedio-Alto",
+                diffColor: "bg-orange-100 text-orange-800",
+                title: "Amplificador de Laboratorio (7/20)",
+                instruction: "Transforma 7/20 multiplicando para llegar a denominador 100 y encontrar su decimal.",
+                hint: "Como 20 × 5 = 100, multiplica también 7 × 5 = 35. Obtendrás 35/100 = 0,35.",
+                type: "board-trick",
+                baseNum: 7,
+                baseDen: 20,
+                expectedMult: "×5",
+                expectedNum: "35",
+                expectedDen: "100",
+                expectedDec: "0,35",
+                tokens: ["×2", "×5", "×25", "14", "35", "10", "100", "0,35", "3,5"],
+                explanationSuccess: "¡Genial! (7 × 5) / (20 × 5) = 35/100 = 0,35."
+            },
+            {
+                id: 7,
+                difficulty: "★★★★ Nivel 7 • Avanzado",
+                diffColor: "bg-rose-100 text-rose-800",
+                title: "Clasificador Comparativo con 0,5",
+                instruction: "Toca cada fracción y colócala en la caja que corresponda: Menor que 0,5, Igual a 0,5 o Mayor que 0,5.",
+                hint: "1/4 (0,25) y 1/5 (0,2) son menores que 0,5 | 2/4 y 5/10 valen 0,5 | 3/4 (0,75) y 4/5 (0,8) superan a 0,5.",
+                type: "sorting",
+                bucketsInfo: [
+                    { key: 'less', sub: 'Menores a la mitad', title: '< 0,5', color: 'cyan' },
+                    { key: 'equal', sub: 'Exactamente la mitad', title: '= 0,5', color: 'amber' },
+                    { key: 'greater', sub: 'Mayores a la mitad', title: '> 0,5', color: 'pink' }
+                ],
+                cards: [
+                    { id: 'vc1', num: 1, den: 4, bucket: 'less' },
+                    { id: 'vc2', num: 1, den: 5, bucket: 'less' },
+                    { id: 'vc3', num: 2, den: 4, bucket: 'equal' },
+                    { id: 'vc4', num: 5, den: 10, bucket: 'equal' },
+                    { id: 'vc5', num: 3, den: 4, bucket: 'greater' },
+                    { id: 'vc6', num: 4, den: 5, bucket: 'greater' }
+                ]
+            },
+            {
+                id: 8,
+                difficulty: "★★★★★ Nivel 8 • Reto Maestro Visual",
+                diffColor: "bg-purple-100 text-purple-900",
+                title: "Escalera de Fracciones Propias e Impropias",
+                instruction: "Intercambia las tarjetas tocándolas para ordenarlas de MENOR a MAYOR valor decimal.",
+                hint: "1/8 = 0,125 | 3/5 = 0,6 | 5/4 = 1,25 | 3/2 = 1,5.",
+                type: "ordering",
+                items: [
+                    { id: 'vo1', num: 5, den: 4, val: 1.25, trick: "1,25" },
+                    { id: 'vo2', num: 1, den: 8, val: 0.125, trick: "0,125" },
+                    { id: 'vo3', num: 3, den: 2, val: 1.5, trick: "1,5" },
+                    { id: 'vo4', num: 3, den: 5, val: 0.6, trick: "0,6" }
+                ]
+            }
+        ];
+
+        /* ==============================================================
+           MÓDULO 2: 8 EJERCICIOS DE "TRUCOS DE FRACCIONES A DECIMALES"
+           (FIELES A LA PIZARRA DEL COLEGIO LOBACHEVSKY - 5° GRADO)
+           ============================================================== */
+        const TRICKS_LEVELS = [
+            {
+                id: 1,
+                difficulty: "★ Ejercicio 1 de Pizarra • Base 10",
+                diffColor: "bg-emerald-100 text-emerald-800",
+                title: "Ejercicio 1 de la Pizarra: 2/5 a Decimal",
+                instruction: "Completa en la pizarra la conversión de 2/5 multiplicando arriba y abajo por 2 para llegar a denominador 10.",
+                hint: "Tal como en la pizarra: multiplica numerador y denominador ×2. Así (2×2)/(5×2) = 4/10 = 0,4.",
+                type: "board-trick",
+                baseNum: 2,
+                baseDen: 5,
+                expectedMult: "×2",
+                expectedNum: "4",
+                expectedDen: "10",
+                expectedDec: "0,4",
+                tokens: ["×2", "×5", "×25", "4", "6", "10", "100", "0,4", "0,2", "2,5"],
+                explanationSuccess: "¡Idéntico a la pizarra! (2 × 2) / (5 × 2) = 4/10 = 0,4."
+            },
+            {
+                id: 2,
+                difficulty: "★ Ejercicio 2 • Base 10 (Truco ×5)",
+                diffColor: "bg-emerald-100 text-emerald-800",
+                title: "Truco con Denominador 2: 9/2 a Decimal",
+                instruction: "Aplica el truco para transformar 9/2 en una fracción sobre 10 y descubre el número decimal.",
+                hint: "El amigo del 2 para llegar a 10 es ×5. Multiplica 9×5 = 45 y 2×5 = 10. Como tiene un cero, corre la coma un lugar: 4,5.",
+                type: "board-trick",
+                baseNum: 9,
+                baseDen: 2,
+                expectedMult: "×5",
+                expectedNum: "45",
+                expectedDen: "10",
+                expectedDec: "4,5",
+                tokens: ["×2", "×5", "×25", "18", "45", "10", "100", "0,45", "4,5", "9,2"],
+                explanationSuccess: "¡Muy bien! (9 × 5) / (2 × 5) = 45/10 = 4,5."
+            },
+            {
+                id: 3,
+                difficulty: "★★ Ejercicio 3 de Pizarra • Base 100",
+                diffColor: "bg-cyan-100 text-cyan-800",
+                title: "Ejercicio 2 de la Pizarra: 7/4 con Truco ×25",
+                instruction: "Completa el segundo ejercicio de la foto: convierte 7/4 multiplicando por 25 para llegar a denominador 100.",
+                hint: "4 × 25 = 100 y arriba 7 × 25 = 175. Nos queda 175/100 = 1,75.",
+                type: "board-trick",
+                baseNum: 7,
+                baseDen: 4,
+                expectedMult: "×25",
+                expectedNum: "175",
+                expectedDen: "100",
+                expectedDec: "1,75",
+                tokens: ["×4", "×25", "×125", "125", "175", "10", "100", "0,75", "1,75", "17,5"],
+                explanationSuccess: "¡Brillante! Igual que en la pizarra: (7 × 25) / (4 × 25) = 175/100 = 1,75."
+            },
+            {
+                id: 4,
+                difficulty: "★★ Ejercicio 4 • Base 100 (Truco ×4)",
+                diffColor: "bg-sky-100 text-sky-800",
+                title: "Truco Inverso con Denominador 25: 11/25",
+                instruction: "Si el denominador es 25, ¿por cuánto multiplicamos para obtener 100? Completa los recuadros.",
+                hint: "Como 25 × 4 = 100, multiplica arriba y abajo por 4: 11 × 4 = 44 y 44/100 = 0,44.",
+                type: "board-trick",
+                baseNum: 11,
+                baseDen: 25,
+                expectedMult: "×4",
+                expectedNum: "44",
+                expectedDen: "100",
+                expectedDec: "0,44",
+                tokens: ["×4", "×5", "×25", "44", "55", "100", "1000", "0,44", "4,4", "1,44"],
+                explanationSuccess: "¡Excelente! (11 × 4) / (25 × 4) = 44/100 = 0,44."
+            },
+            {
+                id: 5,
+                difficulty: "★★★ Ejercicio 5 • Base 100 (Truco ×5)",
+                diffColor: "bg-amber-100 text-amber-800",
+                title: "Truco con Denominador 20: 13/20 a Decimal",
+                instruction: "Completa la pizarra amplificando 13/20 hasta denominador 100.",
+                hint: "Para que 20 llegue a 100 multiplicamos ×5. Arriba: 13 × 5 = 65. Así 65/100 = 0,65.",
+                type: "board-trick",
+                baseNum: 13,
+                baseDen: 20,
+                expectedMult: "×5",
+                expectedNum: "65",
+                expectedDen: "100",
+                expectedDec: "0,65",
+                tokens: ["×2", "×4", "×5", "55", "65", "10", "100", "0,65", "6,5", "1,65"],
+                explanationSuccess: "¡Exacto! (13 × 5) / (20 × 5) = 65/100 = 0,65."
+            },
+            {
+                id: 6,
+                difficulty: "★★★ Ejercicio 6 de Pizarra • Base 1000",
+                diffColor: "bg-orange-100 text-orange-800",
+                title: "Ejercicio 3 de la Pizarra: 13/8 con Truco ×125",
+                instruction: "Resuelve el ejercicio 3 de tu pizarra multiplicando 13/8 por 125 arriba y abajo para llegar a 1000.",
+                hint: "En el denominador 8 × 125 = 1000. (Puedes completar con 1525 ➔ 1,525 como se escribió en la pizarra o con el producto exacto 1625 ➔ 1,625).",
+                type: "board-trick",
+                baseNum: 13,
+                baseDen: 8,
+                expectedMult: "×125",
+                expectedNum: "1525",
+                altNum: "1625",
+                expectedDen: "1000",
+                expectedDec: "1,525",
+                altDec: "1,625",
+                tokens: ["×25", "×125", "1525", "1625", "100", "1000", "1,525", "1,625", "15,25"],
+                explanationSuccess: "¡Excelente trabajo con el truco ×125 sobre denominador 8 para llegar a 1000!"
+            },
+            {
+                id: 7,
+                difficulty: "★★★★ Ejercicio 7 • Relacionar Trucos",
+                diffColor: "bg-rose-100 text-rose-800",
+                title: "Une cada Fracción con su Truco Multiplicador",
+                instruction: "Toca una fracción a la izquierda y únelas con el truco y resultado que la convierte en decimal.",
+                hint: "Denominador 5 usa ×2 | Denominador 4 usa ×25 | Denominador 25 usa ×4 | Denominador 8 usa ×125.",
+                type: "matching",
+                pairs: [
+                    { id: 'tp1', num: 4, den: 5, dec: "×2 ➔ 8/10 = 0,8" },
+                    { id: 'tp2', num: 9, den: 4, dec: "×25 ➔ 225/100 = 2,25" },
+                    { id: 'tp3', num: 7, den: 25, dec: "×4 ➔ 28/100 = 0,28" },
+                    { id: 'tp4', num: 3, den: 8, dec: "×125 ➔ 375/1000 = 0,375" }
+                ]
+            },
+            {
+                id: 8,
+                difficulty: "★★★★★ Ejercicio 8 • Reto Maestro de Pizarra",
+                diffColor: "bg-purple-100 text-purple-900",
+                title: "Ordena las Fracciones de la Pizarra",
+                instruction: "Aplica los trucos (×2, ×25 y ×125) mentalmente o en la Pizarra Libre y ordénalas de MENOR a MAYOR.",
+                hint: "2/5 = 0,4 | 5/8 = 0,625 | 13/8 = 1,625 | 7/4 = 1,75.",
+                type: "ordering",
+                items: [
+                    { id: 'to1', num: 7, den: 4, val: 1.75, trick: "×25" },
+                    { id: 'to2', num: 2, den: 5, val: 0.4, trick: "×2" },
+                    { id: 'to3', num: 13, den: 8, val: 1.625, trick: "×125" },
+                    { id: 'to4', num: 5, den: 8, val: 0.625, trick: "×125" }
+                ]
+            }
+        ];
+
+        /* ==============================================================
+           ESTADO GLOBAL DE LA APLICACIÓN
+           ============================================================== */
+        let currentMode = 'visual'; // 'visual' | 'tricks'
+        let currentLevelIndex = 0;
+        let completedVisual = new Set();
+        let completedTricks = new Set();
+        let score = 0;
+        let levelState = {};
+
+        function getActiveLevels() {
+            return currentMode === 'visual' ? VISUAL_LEVELS : TRICKS_LEVELS;
+        }
+
+        function getActiveCompletedSet() {
+            return currentMode === 'visual' ? completedVisual : completedTricks;
+        }
+
+        function startLab(mode = 'visual') {
+            playTone('pop');
+            currentMode = mode;
+            currentLevelIndex = 0;
+            document.getElementById('cover-screen').classList.add('hidden');
+            document.getElementById('lab-screen').classList.remove('hidden');
+            updateModeTabsUI();
+            renderLevelIndicators();
+            loadLevel(0);
+            setTimeout(resizeScratchpad, 100);
+        }
+
+        function switchMode(mode) {
+            playTone('pop');
+            currentMode = mode;
+            currentLevelIndex = 0;
+            updateModeTabsUI();
+            renderLevelIndicators();
+            loadLevel(0);
+        }
+
+        function updateModeTabsUI() {
+            const tabVisual = document.getElementById('tab-visual');
+            const tabTricks = document.getElementById('tab-tricks');
+            const cheatSheet = document.getElementById('tricks-cheat-sheet');
+            const modePill = document.getElementById('mode-pill');
+
+            if (currentMode === 'visual') {
+                tabVisual.className = "px-3.5 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm transition flex items-center gap-1.5 bg-indigo-600 text-white shadow cursor-pointer";
+                tabTricks.className = "px-3.5 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm transition flex items-center gap-1.5 text-slate-600 hover:bg-slate-200 cursor-pointer";
+                cheatSheet.classList.add('hidden');
+                cheatSheet.classList.remove('flex');
+                modePill.innerHTML = `<i class="ph-fill ph-shapes text-amber-600"></i> Misión I: Figuras Interactivas`;
+            } else {
+                tabTricks.className = "px-3.5 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm transition flex items-center gap-1.5 bg-pink-600 text-white shadow cursor-pointer";
+                tabVisual.className = "px-3.5 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm transition flex items-center gap-1.5 text-slate-600 hover:bg-slate-200 cursor-pointer";
+                cheatSheet.classList.remove('hidden');
+                cheatSheet.classList.add('flex');
+                modePill.innerHTML = `<i class="ph-fill ph-lightning text-amber-600"></i> Misión II: Trucos ×2, ×5, ×25, ×125`;
+            }
+        }
+
+        function showCover() {
+            playTone('pop');
+            document.getElementById('lab-screen').classList.add('hidden');
+            document.getElementById('cover-screen').classList.remove('hidden');
+        }
+
+        function renderLevelIndicators() {
+            const container = document.getElementById('level-indicators');
+            container.innerHTML = '';
+            const levels = getActiveLevels();
+            const doneSet = getActiveCompletedSet();
+
+            levels.forEach((lvl, idx) => {
+                const isCurrent = idx === currentLevelIndex;
+                const isDone = doneSet.has(idx);
+                const btn = document.createElement('button');
+                btn.onclick = () => {
+                    playTone('pop');
+                    loadLevel(idx);
+                };
+                btn.className = `w-9 h-9 sm:w-11 sm:h-11 rounded-2xl font-display font-bold text-base sm:text-lg transition transform flex items-center justify-center border-2 cursor-pointer ${
+                    isCurrent 
+                        ? 'bg-yellow-400 text-indigo-950 border-indigo-900 scale-110 shadow-md' 
+                        : isDone 
+                            ? 'bg-emerald-500 text-white border-emerald-700' 
+                            : 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200'
+                }`;
+                btn.innerHTML = isDone ? `<i class="ph-bold ph-check"></i>` : lvl.id;
+                container.appendChild(btn);
+            });
+        }
+
+        function fractionHTML(num, den, sizeClass = "text-2xl") {
+            return `<span class="fraction ${sizeClass}"><span class="num">${num}</span><span class="den">${den}</span></span>`;
+        }
+
+        function loadLevel(index) {
+            currentLevelIndex = index;
+            const levels = getActiveLevels();
+            const lvl = levels[index];
+
+            // Actualizar encabezados
+            document.getElementById('level-badge').textContent = `Nivel ${lvl.id} de 8`;
+            const diffBadge = document.getElementById('difficulty-badge');
+            diffBadge.textContent = lvl.difficulty;
+            diffBadge.className = `${lvl.diffColor} font-bold px-3 py-1 rounded-xl text-xs sm:text-sm`;
+
+            document.getElementById('exercise-title').textContent = lvl.title;
+            document.getElementById('exercise-instruction').textContent = lvl.instruction;
+
+            // Ocultar banners y restaurar botones
+            hideFeedback();
+            document.getElementById('btn-verify').classList.remove('hidden');
+            document.getElementById('btn-next').classList.add('hidden');
+
+            renderLevelIndicators();
+            initLevelState(lvl);
+            renderStage(lvl);
+        }
+
+        function resetCurrentLevel() {
+            playTone('pop');
+            loadLevel(currentLevelIndex);
+        }
+
+        function nextLevel() {
+            playTone('pop');
+            const levels = getActiveLevels();
+            if (currentLevelIndex < levels.length - 1) {
+                loadLevel(currentLevelIndex + 1);
+            } else {
+                showVictoryModal();
+            }
+        }
+
+        function showHint() {
+            playTone('pop');
+            const lvl = getActiveLevels()[currentLevelIndex];
+            showFeedback(`💡 Pista de TuProfe20: ${lvl.hint}`, 'hint');
+        }
+
+        function showFeedback(msg, status) {
+            const banner = document.getElementById('feedback-banner');
+            banner.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-900', 'border-emerald-400', 'bg-rose-100', 'text-rose-900', 'border-rose-400', 'bg-amber-100', 'text-amber-900', 'border-amber-400', 'shake');
+            banner.classList.add('border-2');
+            if (status === 'success') {
+                banner.classList.add('bg-emerald-100', 'text-emerald-900', 'border-emerald-400');
+            } else if (status === 'error') {
+                banner.classList.add('bg-rose-100', 'text-rose-900', 'border-rose-400', 'shake');
+            } else {
+                banner.classList.add('bg-amber-100', 'text-amber-900', 'border-amber-400');
+            }
+            banner.innerHTML = msg;
+        }
+
+        function hideFeedback() {
+            document.getElementById('feedback-banner').classList.add('hidden');
+        }
+
+        /* ==============================================================
+           INICIALIZACIÓN Y RENDERIZADO DE CADA NIVEL INTERACTIVO
+           ============================================================== */
+        function initLevelState(lvl) {
+            if (lvl.type === 'tenths-bar') {
+                levelState = { activeBars: Array(10).fill(false) };
+            } else if (lvl.type === 'quarters-pie') {
+                levelState = { slices: [false, false, false, false] };
+            } else if (lvl.type === 'hundredths-grid') {
+                levelState = { count: 0 };
+            } else if (lvl.type === 'number-line') {
+                levelState = { sliderVal: 0.0 };
+            } else if (lvl.type === 'board-trick') {
+                levelState = {
+                    activeSlot: 'mult', // 'mult' | 'num' | 'den' | 'dec'
+                    mult: '?',
+                    num: '?',
+                    den: '?',
+                    dec: '?'
+                };
+            } else if (lvl.type === 'matching') {
+                levelState = {
+                    selectedLeft: null,
+                    matchedIds: new Set(),
+                    shuffledRight: [...lvl.pairs].sort(() => Math.random() - 0.5)
+                };
+            } else if (lvl.type === 'sorting') {
+                levelState = {
+                    selectedCardId: null,
+                    placements: {}
+                };
+            } else if (lvl.type === 'ordering') {
+                levelState = {
+                    selectedIdx: null,
+                    currentOrder: [...lvl.items]
+                };
+            }
+        }
+
+        function renderStage(lvl) {
+            const stage = document.getElementById('interactive-stage');
+            stage.innerHTML = '';
+
+            /* ----------------------------------------------------------
+               VISUAL 1: BARRAS DE DÉCIMOS INTERACTIVAS
+               ---------------------------------------------------------- */
+            if (lvl.type === 'tenths-bar') {
+                const count = levelState.activeBars.filter(Boolean).length;
+                const decStr = (count / 10).toFixed(1).replace('.', ',');
+                stage.innerHTML = `
+                    <div class="w-full max-w-3xl flex flex-col items-center gap-6 animate-pop">
+                        <div class="flex items-center gap-6 bg-indigo-50 px-8 py-4 rounded-3xl border-2 border-indigo-200 shadow-inner">
+                            <div class="text-center">
+                                <span class="text-xs font-extrabold uppercase text-indigo-500 block">Objetivo</span>
+                                ${fractionHTML(lvl.targetCount, 10, 'text-4xl text-indigo-950')}
+                            </div>
+                            <span class="text-4xl font-display font-bold text-slate-400">➔</span>
+                            <div class="text-center">
+                                <span class="text-xs font-extrabold uppercase text-pink-600 block">Tu Selección</span>
+                                <span class="font-display text-4xl sm:text-5xl font-extrabold text-pink-600">${decStr}</span>
+                            </div>
+                        </div>
+
+                        <div class="w-full grid grid-cols-10 gap-2 sm:gap-3 p-4 bg-slate-100 rounded-3xl border-4 border-slate-300">
+                            ${levelState.activeBars.map((active, i) => `
+                                <button onclick="toggleTenthBar(${i})" class="h-36 sm:h-44 rounded-2xl border-2 transition-all transform hover:scale-105 flex flex-col items-center justify-end pb-3 font-display font-bold cursor-pointer ${
+                                    active 
+                                        ? 'bg-gradient-to-t from-cyan-500 to-sky-400 text-white border-cyan-700 shadow-lg scale-105' 
+                                        : 'bg-white text-slate-400 border-slate-300 hover:bg-cyan-50'
+                                }">
+                                    <span class="text-xs sm:text-sm">0,1</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            /* ----------------------------------------------------------
+               VISUAL 2: PIZZA EN CUARTOS INTERACTIVA (SVG)
+               ---------------------------------------------------------- */
+            else if (lvl.type === 'quarters-pie') {
+                const count = levelState.slices.filter(Boolean).length;
+                const decStr = (count * 0.25).toFixed(2).replace('.', ',');
+                stage.innerHTML = `
+                    <div class="w-full max-w-3xl flex flex-col sm:flex-row items-center justify-center gap-8 animate-pop">
+                        <div class="relative w-64 h-64 sm:w-72 sm:h-72">
+                            <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                                <!-- Q1: Top-Right -->
+                                <path onclick="toggleQuarterSlice(0)" d="M100,100 L100,10 A90,90 0 0,1 190,100 Z" fill="${levelState.slices[0] ? '#f59e0b' : '#f1f5f9'}" stroke="#1e293b" stroke-width="4" class="cursor-pointer transition hover:opacity-90"/>
+                                <text x="135" y="65" font-family="Fredoka" font-size="16" font-weight="bold" fill="#1e293b" pointer-events="none">0,25</text>
+                                <!-- Q2: Bottom-Right -->
+                                <path onclick="toggleQuarterSlice(1)" d="M100,100 L190,100 A90,90 0 0,1 100,190 Z" fill="${levelState.slices[1] ? '#f59e0b' : '#f1f5f9'}" stroke="#1e293b" stroke-width="4" class="cursor-pointer transition hover:opacity-90"/>
+                                <text x="135" y="145" font-family="Fredoka" font-size="16" font-weight="bold" fill="#1e293b" pointer-events="none">0,25</text>
+                                <!-- Q3: Bottom-Left -->
+                                <path onclick="toggleQuarterSlice(2)" d="M100,100 L100,190 A90,90 0 0,1 10,100 Z" fill="${levelState.slices[2] ? '#f59e0b' : '#f1f5f9'}" stroke="#1e293b" stroke-width="4" class="cursor-pointer transition hover:opacity-90"/>
+                                <text x="45" y="145" font-family="Fredoka" font-size="16" font-weight="bold" fill="#1e293b" pointer-events="none">0,25</text>
+                                <!-- Q4: Top-Left -->
+                                <path onclick="toggleQuarterSlice(3)" d="M100,100 L10,100 A90,90 0 0,1 100,10 Z" fill="${levelState.slices[3] ? '#f59e0b' : '#f1f5f9'}" stroke="#1e293b" stroke-width="4" class="cursor-pointer transition hover:opacity-90"/>
+                                <text x="45" y="65" font-family="Fredoka" font-size="16" font-weight="bold" fill="#1e293b" pointer-events="none">0,25</text>
+                            </svg>
+                        </div>
+
+                        <div class="bg-amber-50 border-4 border-amber-300 rounded-3xl p-6 text-center min-w-[230px] shadow-md">
+                            <span class="text-xs font-extrabold uppercase text-amber-700 block mb-1">Porciones Activas</span>
+                            <div class="flex items-center justify-center gap-4 my-2">
+                                ${fractionHTML(count, 4, 'text-4xl text-amber-950')}
+                                <span class="text-3xl font-bold text-amber-600">=</span>
+                                <span class="font-display text-5xl font-extrabold text-pink-600">${decStr}</span>
+                            </div>
+                            <p class="text-xs font-bold text-slate-500 mt-2">Meta: Selecciona 3/4 (0,75)</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            /* ----------------------------------------------------------
+               VISUAL 3: CUADRÍCULA DE 100 CENTÉSIMOS
+               ---------------------------------------------------------- */
+            else if (lvl.type === 'hundredths-grid') {
+                const count = levelState.count;
+                const decStr = (count / 100).toFixed(2).replace('.', ',');
+                let cellsHTML = '';
+                for (let i = 1; i <= 100; i++) {
+                    const active = i <= count;
+                    cellsHTML += `<div onclick="setHundredthsCount(${i})" class="w-6 h-6 sm:w-7 sm:h-7 rounded-md cursor-pointer transition ${
+                        active ? 'bg-pink-500 shadow-sm scale-95' : 'bg-slate-200 hover:bg-pink-200'
+                    }"></div>`;
+                }
+
+                stage.innerHTML = `
+                    <div class="w-full max-w-4xl flex flex-col sm:flex-row items-center justify-center gap-6 animate-pop">
+                        <div class="bg-white p-3 rounded-3xl border-4 border-indigo-200 shadow-inner grid-100">
+                            ${cellsHTML}
+                        </div>
+
+                        <div class="flex flex-col items-center gap-4 bg-indigo-50 p-5 rounded-3xl border-2 border-indigo-200 min-w-[250px]">
+                            <div class="text-center">
+                                <span class="text-xs font-extrabold uppercase text-indigo-500 block">Valor Actual</span>
+                                <div class="flex items-center justify-center gap-3 mt-1">
+                                    ${fractionHTML(count, 100, 'text-3xl text-indigo-950')}
+                                    <span class="text-2xl font-bold">=</span>
+                                    <span class="font-display text-4xl font-extrabold text-pink-600">${decStr}</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                <button onclick="addHundredths(10)" class="btn-3d-blue text-white font-display font-bold py-2 px-3 rounded-xl cursor-pointer">+10 (0,10)</button>
+                                <button onclick="addHundredths(-10)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 font-display font-bold py-2 px-3 rounded-xl cursor-pointer">-10</button>
+                                <button onclick="addHundredths(1)" class="btn-3d-purple text-white font-display font-bold py-2 px-3 rounded-xl cursor-pointer">+1 (0,01)</button>
+                                <button onclick="addHundredths(-1)" class="bg-slate-300 hover:bg-slate-400 text-slate-800 font-display font-bold py-2 px-3 rounded-xl cursor-pointer">-1</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            /* ----------------------------------------------------------
+               VISUAL 4: COHETE EN LA RECTA NUMÉRICA
+               ---------------------------------------------------------- */
+            else if (lvl.type === 'number-line') {
+                const val = Number(levelState.sliderVal).toFixed(1);
+                const valComma = val.replace('.', ',');
+                stage.innerHTML = `
+                    <div class="w-full max-w-3xl flex flex-col items-center gap-8 animate-pop px-4">
+                        <div class="bg-indigo-950 text-white px-8 py-4 rounded-3xl flex items-center gap-6 shadow-xl border-4 border-indigo-400">
+                            <div class="text-center">
+                                <span class="text-xs uppercase font-bold text-indigo-300 block">Fracción</span>
+                                ${fractionHTML(lvl.num, lvl.den, 'text-4xl text-yellow-300')}
+                            </div>
+                            <i class="ph-fill ph-rocket-launch text-4xl text-pink-400"></i>
+                            <div class="text-center">
+                                <span class="text-xs uppercase font-bold text-indigo-300 block">Posición Decimal</span>
+                                <span id="rocket-val-label" class="font-display text-5xl font-extrabold text-cyan-300">${valComma}</span>
+                            </div>
+                        </div>
+
+                        <div class="w-full bg-slate-100 p-6 sm:p-8 rounded-3xl border-4 border-slate-300">
+                            <input type="range" min="0" max="1" step="0.1" value="${levelState.sliderVal}" oninput="updateRocketSlider(this.value)" class="lab-slider">
+                            <div class="flex justify-between text-xs sm:text-base font-display font-bold text-slate-700 mt-4 px-1">
+                                <span>0,0</span><span>0,1</span><span>0,2</span><span>0,3</span><span>0,4</span><span>0,5</span><span>0,6</span><span>0,7</span><span>0,8</span><span>0,9</span><span>1,0</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            /* ----------------------------------------------------------
+               PIZARRA INTERACTIVA DE TRUCOS (MODO II Y NIVEL 6 DE MODO I)
+               ---------------------------------------------------------- */
+            else if (lvl.type === 'board-trick') {
+                const slotStyle = (slotKey, colorTheme) => {
+                    const isActive = levelState.activeSlot === slotKey;
+                    const isFilled = levelState[slotKey] !== '?';
+                    if (isActive) {
+                        return 'border-pink-500 bg-yellow-100 ring-4 ring-pink-300 scale-105 text-indigo-950';
+                    }
+                    if (isFilled) {
+                        return `${colorTheme} bg-white border-indigo-500 shadow-md`;
+                    }
+                    return 'border-dashed border-slate-400 bg-slate-50 text-slate-400 hover:bg-indigo-50';
+                };
+
+                stage.innerHTML = `
+                    <div class="w-full max-w-4xl flex flex-col items-center gap-6 animate-pop">
+                        
+                        <!-- Pizarra Blanca Escolar Interactiva -->
+                        <div class="w-full bg-white rounded-[2rem] border-4 border-indigo-200 shadow-inner p-5 sm:p-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 relative">
+                            <div class="absolute top-3 left-4 text-xs font-extrabold uppercase tracking-wider text-purple-600 bg-purple-100 px-3 py-1 rounded-full">
+                                Paso a Paso en Pizarra
+                            </div>
+
+                            <!-- 1. Fracción Original + Multiplicadores Naranjas -->
+                            <div class="flex flex-col items-center mt-4 sm:mt-0">
+                                <span class="text-xs font-extrabold uppercase text-orange-600 mb-1">1. Truco Multiplicador</span>
+                                <div class="flex items-center bg-orange-50/70 px-5 py-3 rounded-3xl border-2 border-orange-200">
+                                    <div class="flex flex-col items-center">
+                                        <!-- Numerador + Multiplicador -->
+                                        <div class="flex items-center gap-2 pb-1.5 border-b-4 border-slate-800 px-2">
+                                            <span class="font-display text-4xl sm:text-5xl font-bold text-slate-800">${lvl.baseNum}</span>
+                                            <button onclick="selectBoardSlot('mult')" class="min-w-[76px] h-12 px-2 rounded-xl border-3 font-display text-2xl sm:text-3xl font-bold transition-all cursor-pointer ${slotStyle('mult', 'text-orange-600')}">
+                                                ${levelState.mult}
+                                            </button>
+                                        </div>
+                                        <!-- Denominador + Multiplicador Espejo -->
+                                        <div class="flex items-center gap-2 pt-1.5 px-2">
+                                            <span class="font-display text-4xl sm:text-5xl font-bold text-slate-800">${lvl.baseDen}</span>
+                                            <button onclick="selectBoardSlot('mult')" class="min-w-[76px] h-12 px-2 rounded-xl border-3 font-display text-2xl sm:text-3xl font-bold transition-all cursor-pointer ${slotStyle('mult', 'text-orange-600')}">
+                                                ${levelState.mult}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <span class="font-display text-4xl sm:text-5xl font-bold text-slate-500 mt-4 sm:mt-0">=</span>
+
+                            <!-- 2. Fracción Equivalente Decimal (Sobre 10, 100 o 1000) -->
+                            <div class="flex flex-col items-center mt-4 sm:mt-0">
+                                <span class="text-xs font-extrabold uppercase text-indigo-600 mb-1">2. Fracción Base 10/100/1000</span>
+                                <div class="flex flex-col items-center bg-indigo-50/70 px-5 py-3 rounded-3xl border-2 border-indigo-200">
+                                    <button onclick="selectBoardSlot('num')" class="min-w-[95px] h-14 px-3 rounded-xl border-3 font-display text-3xl sm:text-4xl font-bold transition-all cursor-pointer ${slotStyle('num', 'text-indigo-950')}">
+                                        ${levelState.num}
+                                    </button>
+                                    <div class="w-28 h-1 bg-slate-800 my-1.5 rounded-full"></div>
+                                    <button onclick="selectBoardSlot('den')" class="min-w-[95px] h-14 px-3 rounded-xl border-3 font-display text-3xl sm:text-4xl font-bold transition-all cursor-pointer ${slotStyle('den', 'text-indigo-950')}">
+                                        ${levelState.den}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <span class="font-display text-4xl sm:text-5xl font-bold text-slate-500 mt-4 sm:mt-0">=</span>
+
+                            <!-- 3. Resultado Decimal Final con Coma -->
+                            <div class="flex flex-col items-center mt-4 sm:mt-0">
+                                <span class="text-xs font-extrabold uppercase text-emerald-700 mb-1">3. Número Decimal</span>
+                                <button onclick="selectBoardSlot('dec')" class="min-w-[130px] h-20 px-5 rounded-3xl border-4 font-display text-4xl sm:text-5xl font-extrabold transition-all cursor-pointer ${slotStyle('dec', 'text-emerald-700')}">
+                                    ${levelState.dec}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Banco de Fichas para Tocar y Completar en la Pizarra -->
+                        <div class="w-full text-center">
+                            <p class="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-indigo-900 mb-2.5">
+                                👇 Toca una ficha para colocarla en la pizarra:
+                            </p>
+                            <div class="flex flex-wrap justify-center gap-2.5 sm:gap-3">
+                                ${lvl.tokens.map(tok => {
+                                    const isMult = tok.startsWith('×');
+                                    const isDec = tok.includes(',');
+                                    const btnStyle = isMult 
+                                        ? 'bg-gradient-to-b from-orange-400 to-orange-600 border-orange-700' 
+                                        : isDec 
+                                            ? 'bg-gradient-to-b from-emerald-500 to-teal-600 border-teal-800'
+                                            : 'btn-3d-purple';
+                                    return `
+                                        <button onclick="placeBoardToken('${tok}')" class="${btnStyle} text-white font-display font-bold text-xl sm:text-2xl px-5 py-2.5 rounded-2xl shadow-md hover:scale-105 active:scale-95 transition transform cursor-pointer border-b-4">
+                                            ${tok}
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            /* ----------------------------------------------------------
+               RELACIONAR PAREJAS
+               ---------------------------------------------------------- */
+            else if (lvl.type === 'matching') {
+                stage.innerHTML = `
+                    <div class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-10 animate-pop">
+                        <!-- Columna Izquierda: Fracciones -->
+                        <div class="flex flex-col gap-3">
+                            <h4 class="text-center font-display font-bold text-indigo-900 uppercase text-sm">Fracciones Originales</h4>
+                            ${lvl.pairs.map(p => {
+                                const isMatched = levelState.matchedIds.has(p.id);
+                                const isSelected = levelState.selectedLeft === p.id;
+                                return `
+                                    <button onclick="selectLeftMatch('${p.id}')" ${isMatched ? 'disabled' : ''} class="h-20 rounded-2xl font-bold transition-all flex items-center justify-center border-4 cursor-pointer ${
+                                        isMatched 
+                                            ? 'bg-emerald-500 text-white border-emerald-700 opacity-90 scale-95' 
+                                            : isSelected 
+                                                ? 'bg-yellow-300 text-indigo-950 border-indigo-900 scale-105 shadow-lg' 
+                                                : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-950 border-indigo-200 shadow'
+                                    }">
+                                        ${fractionHTML(p.num, p.den, 'text-2xl sm:text-3xl')}
+                                        ${isMatched ? '<i class="ph-bold ph-check-circle text-2xl ml-3"></i>' : ''}
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <!-- Columna Derecha: Truco Aplicado y Decimal -->
+                        <div class="flex flex-col gap-3">
+                            <h4 class="text-center font-display font-bold text-pink-700 uppercase text-sm">Equivalencia Decimal</h4>
+                            ${levelState.shuffledRight.map(p => {
+                                const isMatched = levelState.matchedIds.has(p.id);
+                                return `
+                                    <button onclick="selectRightMatch('${p.id}')" ${isMatched ? 'disabled' : ''} class="h-20 px-4 rounded-2xl font-display text-xl sm:text-2xl font-extrabold transition-all flex items-center justify-center border-4 cursor-pointer ${
+                                        isMatched 
+                                            ? 'bg-emerald-500 text-white border-emerald-700 opacity-90 scale-95' 
+                                            : 'bg-pink-50 hover:bg-pink-100 text-pink-700 border-pink-200 shadow'
+                                    }">
+                                        ${p.dec}
+                                        ${isMatched ? '<i class="ph-bold ph-check-circle text-2xl ml-3"></i>' : ''}
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            /* ----------------------------------------------------------
+               CLASIFICADOR DE TARJETAS EN CONTENEDORES
+               ---------------------------------------------------------- */
+            else if (lvl.type === 'sorting') {
+                const unplacedCards = lvl.cards.filter(c => !levelState.placements[c.id]);
+
+                const renderBucketCards = (bucketKey) => {
+                    return lvl.cards
+                        .filter(c => levelState.placements[c.id] === bucketKey)
+                        .map(c => `
+                            <button onclick="removeCardFromBucket('${c.id}'); event.stopPropagation();" class="bg-white text-indigo-950 px-3 py-1.5 rounded-xl border-2 border-indigo-300 shadow font-bold flex items-center gap-1 hover:bg-rose-50 cursor-pointer">
+                                ${fractionHTML(c.num, c.den, 'text-base')}
+                                <i class="ph-bold ph-x text-xs text-rose-500"></i>
+                            </button>
+                        `).join('');
+                };
+
+                stage.innerHTML = `
+                    <div class="w-full max-w-4xl flex flex-col items-center gap-5 animate-pop">
+                        <!-- Tarjetas por clasificar -->
+                        <div class="min-h-[88px] w-full bg-slate-100 p-3.5 rounded-3xl border-2 border-dashed border-slate-300 flex flex-wrap items-center justify-center gap-3">
+                            ${unplacedCards.length === 0 
+                                ? '<span class="text-emerald-700 font-bold">¡Todas las fracciones están clasificadas! Pulsa ¡COMPROBAR!</span>' 
+                                : unplacedCards.map(c => {
+                                    const selected = levelState.selectedCardId === c.id;
+                                    return `
+                                        <button onclick="selectSortingCard('${c.id}')" class="px-5 py-2.5 rounded-2xl font-bold transition-all border-4 cursor-pointer ${
+                                            selected 
+                                                ? 'bg-yellow-300 text-indigo-950 border-indigo-950 scale-110 shadow-xl' 
+                                                : 'bg-white text-indigo-950 border-indigo-200 hover:border-indigo-400 shadow'
+                                        }">
+                                            ${fractionHTML(c.num, c.den, 'text-2xl')}
+                                        </button>
+                                    `;
+                                }).join('')
+                            }
+                        </div>
+
+                        <!-- 3 Contenedores -->
+                        <div class="w-full grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            ${lvl.bucketsInfo.map(b => `
+                                <div onclick="placeInBucket('${b.key}')" class="bg-${b.color}-50 hover:bg-${b.color}-100 border-4 border-${b.color}-400 rounded-3xl p-4 min-h-[155px] flex flex-col items-center justify-between cursor-pointer transition shadow-md">
+                                    <div class="text-center">
+                                        <span class="text-xs font-extrabold uppercase text-${b.color}-700">${b.sub}</span>
+                                        <h5 class="font-display text-2xl font-bold text-${b.color}-900">${b.title}</h5>
+                                    </div>
+                                    <div class="flex flex-wrap justify-center gap-2 my-2">${renderBucketCards(b.key)}</div>
+                                    <span class="text-xs font-bold text-${b.color}-600">Toca para colocar aquí</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            /* ----------------------------------------------------------
+               ORDENAR DE MENOR A MAYOR
+               ---------------------------------------------------------- */
+            else if (lvl.type === 'ordering') {
+                stage.innerHTML = `
+                    <div class="w-full max-w-3xl flex flex-col items-center gap-6 animate-pop">
+                        <div class="flex items-center justify-between w-full px-4 text-xs sm:text-sm font-extrabold uppercase text-indigo-900">
+                            <span class="bg-cyan-100 px-3 py-1 rounded-full">⬅ Menor Valor Decimal</span>
+                            <span class="bg-pink-100 px-3 py-1 rounded-full">Mayor Valor Decimal ➡</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
+                            ${levelState.currentOrder.map((item, idx) => {
+                                const isSelected = levelState.selectedIdx === idx;
+                                return `
+                                    <button onclick="selectOrderCard(${idx})" class="h-40 sm:h-48 rounded-3xl border-4 flex flex-col items-center justify-center gap-2 transition-all cursor-pointer shadow-lg ${
+                                        isSelected 
+                                            ? 'bg-yellow-300 border-indigo-950 scale-105' 
+                                            : 'bg-gradient-to-b from-white to-indigo-50 border-indigo-300 hover:border-indigo-500'
+                                    }">
+                                        <span class="text-xs font-extrabold uppercase text-slate-400">Posición ${idx + 1}</span>
+                                        <div class="text-3xl sm:text-4xl text-indigo-950">${fractionHTML(item.num, item.den, 'text-3xl sm:text-4xl')}</div>
+                                        ${item.trick.startsWith('×') ? `<span class="text-xs font-bold text-orange-600 bg-orange-100 px-2.5 py-0.5 rounded-full">Truco ${item.trick}</span>` : ''}
+                                        <span class="text-xs font-bold text-indigo-600 flex items-center gap-1">
+                                            <i class="ph-bold ph-arrows-left-right"></i> Intercambiar
+                                        </span>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        /* ==============================================================
+           FUNCIONES DE INTERACCIÓN POR NIVEL
+           ============================================================== */
+        function toggleTenthBar(idx) {
+            playTone('pop');
+            levelState.activeBars[idx] = !levelState.activeBars[idx];
+            hideFeedback();
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+
+        function toggleQuarterSlice(idx) {
+            playTone('pop');
+            levelState.slices[idx] = !levelState.slices[idx];
+            hideFeedback();
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+
+        function setHundredthsCount(val) {
+            playTone('pop');
+            levelState.count = val;
+            hideFeedback();
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+
+        function addHundredths(delta) {
+            playTone('pop');
+            levelState.count = Math.max(0, Math.min(100, levelState.count + delta));
+            hideFeedback();
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+
+        function updateRocketSlider(val) {
+            levelState.sliderVal = parseFloat(val);
+            const label = document.getElementById('rocket-val-label');
+            if (label) {
+                label.textContent = levelState.sliderVal.toFixed(1).replace('.', ',');
+            }
+        }
+
+        function selectBoardSlot(slot) {
+            playTone('pop');
+            levelState.activeSlot = slot;
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+
+        function placeBoardToken(token) {
+            playTone('pop');
+            if (token.startsWith('×')) {
+                levelState.mult = token;
+                levelState.activeSlot = 'num';
+            } else if (token.includes(',')) {
+                levelState.dec = token;
+            } else {
+                if (levelState.activeSlot === 'mult' || levelState.activeSlot === 'num') {
+                    levelState.num = token;
+                    levelState.activeSlot = 'den';
+                } else if (levelState.activeSlot === 'den') {
+                    levelState.den = token;
+                    levelState.activeSlot = 'dec';
+                } else {
+                    levelState.dec = token;
+                }
+            }
+            hideFeedback();
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+
+        function selectLeftMatch(id) {
+            playTone('pop');
+            levelState.selectedLeft = id;
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+        function selectRightMatch(rightId) {
+            if (!levelState.selectedLeft) {
+                showFeedback("Primero toca una fracción de la columna izquierda.", "hint");
+                return;
+            }
+            if (levelState.selectedLeft === rightId) {
+                playTone('match');
+                levelState.matchedIds.add(rightId);
+                levelState.selectedLeft = null;
+                hideFeedback();
+                const currentLvl = getActiveLevels()[currentLevelIndex];
+                renderStage(currentLvl);
+                if (levelState.matchedIds.size === currentLvl.pairs.length) {
+                    verifyCurrentLevel();
+                }
+            } else {
+                playTone('error');
+                showFeedback("¡Esa pareja no coincide! Revisa el denominador y su conversión.", "error");
+            }
+        }
+
+        function selectSortingCard(cardId) {
+            playTone('pop');
+            levelState.selectedCardId = cardId;
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+        function placeInBucket(bucketKey) {
+            if (!levelState.selectedCardId) {
+                showFeedback("Primero selecciona una tarjeta de fracción arriba.", "hint");
+                return;
+            }
+            playTone('pop');
+            levelState.placements[levelState.selectedCardId] = bucketKey;
+            levelState.selectedCardId = null;
+            hideFeedback();
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+        function removeCardFromBucket(cardId) {
+            playTone('pop');
+            delete levelState.placements[cardId];
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+
+        function selectOrderCard(idx) {
+            playTone('pop');
+            if (levelState.selectedIdx === null) {
+                levelState.selectedIdx = idx;
+            } else {
+                const temp = levelState.currentOrder[levelState.selectedIdx];
+                levelState.currentOrder[levelState.selectedIdx] = levelState.currentOrder[idx];
+                levelState.currentOrder[idx] = temp;
+                levelState.selectedIdx = null;
+            }
+            renderStage(getActiveLevels()[currentLevelIndex]);
+        }
+
+        /* ==============================================================
+           VALIDACIÓN Y RETROALIMENTACIÓN PEDAGÓGICA
+           ============================================================== */
+        function verifyCurrentLevel() {
+            const lvl = getActiveLevels()[currentLevelIndex];
+            let isCorrect = false;
+            let explanation = "";
+
+            if (lvl.type === 'tenths-bar') {
+                const count = levelState.activeBars.filter(Boolean).length;
+                isCorrect = count === lvl.targetCount;
+                explanation = isCorrect 
+                    ? "¡Perfecto! 3 barras de 10 equivalen a 3/10 = 0,3." 
+                    : `Tienes ${count} barras pintadas. Necesitas colorear exactamente ${lvl.targetCount}.`;
+            }
+            else if (lvl.type === 'quarters-pie') {
+                const count = levelState.slices.filter(Boolean).length;
+                isCorrect = count === lvl.targetSlices;
+                explanation = isCorrect 
+                    ? "¡Muy bien! 3 cuartos de pizza suman 0,25 + 0,25 + 0,25 = 0,75." 
+                    : `Has seleccionado ${count}/4. Toca las porciones hasta tener 3/4.`;
+            }
+            else if (lvl.type === 'hundredths-grid') {
+                isCorrect = levelState.count === lvl.targetCells;
+                explanation = isCorrect 
+                    ? "¡Excelente! 45 casillas de 100 representan 45/100 = 0,45." 
+                    : `Tienes ${levelState.count} centésimos iluminados y la meta es ${lvl.targetCells}.`;
+            }
+            else if (lvl.type === 'number-line') {
+                isCorrect = Math.abs(levelState.sliderVal - lvl.targetVal) < 0.01;
+                explanation = isCorrect 
+                    ? "¡Aterrizaje exacto! 4/5 equivale a 8/10 = 0,8 en la recta numérica." 
+                    : "El cohete aún no está en 4/5. Recuerda que cada quinto vale 0,2.";
+            }
+            else if (lvl.type === 'board-trick') {
+                const validNum = (levelState.num === lvl.expectedNum) || (lvl.altNum && levelState.num === lvl.altNum);
+                const validDec = (levelState.dec === lvl.expectedDec) || (lvl.altDec && levelState.dec === lvl.altDec);
+                isCorrect = (
+                    levelState.mult === lvl.expectedMult &&
+                    validNum &&
+                    levelState.den === lvl.expectedDen &&
+                    validDec
+                );
+                if (isCorrect) {
+                    explanation = lvl.explanationSuccess;
+                } else {
+                    explanation = `Revisa tus casillas: usa el truco (${lvl.expectedMult}), convierte a denominador ${lvl.expectedDen} y elige el decimal con coma correcto.`;
+                }
+            }
+            else if (lvl.type === 'matching') {
+                isCorrect = levelState.matchedIds.size === lvl.pairs.length;
+                explanation = isCorrect 
+                    ? "¡Fantástico! Conectaste todas las fracciones con su expresión decimal." 
+                    : "Aún faltan parejas por relacionar en la pizarra.";
+            }
+            else if (lvl.type === 'sorting') {
+                const placedCount = Object.keys(levelState.placements).length;
+                if (placedCount < lvl.cards.length) {
+                    isCorrect = false;
+                    explanation = "Coloca todas las tarjetas dentro de los 3 contenedores antes de comprobar.";
+                } else {
+                    isCorrect = lvl.cards.every(c => levelState.placements[c.id] === c.bucket);
+                    explanation = isCorrect 
+                        ? "¡Clasificación perfecta! Has ubicado cada fracción en su caja correcta." 
+                        : "Alguna fracción está en la caja equivocada. Convierte cada una a decimal para comparar.";
+                }
+            }
+            else if (lvl.type === 'ordering') {
+                const vals = levelState.currentOrder.map(i => i.val);
+                isCorrect = vals.every((v, i, arr) => i === 0 || arr[i - 1] <= v);
+                explanation = isCorrect 
+                    ? "¡Reto Maestro superado! Ordenaste las fracciones de menor a mayor correctamente." 
+                    : "El orden aún no va de menor a mayor. ¡Compara sus valores decimales e intercambia las tarjetas!";
+            }
+
+            if (isCorrect) {
+                playTone('success');
+                const doneSet = getActiveCompletedSet();
+                if (!doneSet.has(currentLevelIndex)) {
+                    doneSet.add(currentLevelIndex);
+                    score += 100;
+                    document.getElementById('score-display').textContent = score;
+                }
+                showFeedback(`🎉 ${explanation}`, 'success');
+                renderLevelIndicators();
+
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+                }
+
+                document.getElementById('btn-verify').classList.add('hidden');
+                document.getElementById('btn-next').classList.remove('hidden');
+            } else {
+                playTone('error');
+                showFeedback(`❌ ${explanation}`, 'error');
+            }
+        }
+
+        function showVictoryModal() {
+            playTone('success');
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('victory-modal').classList.remove('hidden');
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+            }
+        }
+
+        function switchOtherModeFromModal() {
+            document.getElementById('victory-modal').classList.add('hidden');
+            switchMode(currentMode === 'visual' ? 'tricks' : 'visual');
+        }
+
+        function restartWholeLab() {
+            completedVisual.clear();
+            completedTricks.clear();
+            score = 0;
+            document.getElementById('score-display').textContent = '0';
+            document.getElementById('victory-modal').classList.add('hidden');
+            loadLevel(0);
+        }
+
+        /* ==============================================================
+           PIZARRA DIGITAL DE CÁLCULO (SCRATCHPAD CANVAS)
+           ============================================================== */
+        let isDrawing = false;
+        let penColor = '#2563eb';
+        let canvas, ctx;
+
+        function initScratchpad() {
+            canvas = document.getElementById('scratchpad-canvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+
+            const startDraw = (e) => {
+                isDrawing = true;
+                const pos = getPointerPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            };
+            const moveDraw = (e) => {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const pos = getPointerPos(e);
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = penColor;
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            };
+            const endDraw = () => {
+                isDrawing = false;
+            };
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', moveDraw);
+            window.addEventListener('mouseup', endDraw);
+
+            canvas.addEventListener('touchstart', startDraw, { passive: false });
+            canvas.addEventListener('touchmove', moveDraw, { passive: false });
+            window.addEventListener('touchend', endDraw);
+            window.addEventListener('resize', resizeScratchpad);
+        }
+
+        function getPointerPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function resizeScratchpad() {
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+        }
+
+        function toggleScratchpad() {
+            playTone('pop');
+            const container = document.getElementById('scratchpad-container');
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                resizeScratchpad();
+            }
+        }
+
+        function setPenColor(color) {
+            penColor = color;
+        }
+
+        function clearScratchpad() {
+            if (!ctx || !canvas) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        window.onload = function () {
+            initScratchpad();
+        };
+    </script>
+</body>
+</html>
